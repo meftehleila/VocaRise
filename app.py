@@ -96,7 +96,13 @@ def clone_voice():
 def get_audio(filename):
     return send_from_directory(app.config['OUTPUT_FOLDER'], filename)
 
+
 if __name__ == '__main__':
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+    
     port = int(os.environ.get("PORT", 5000))
+    
+    print(f"\n✅ Flask app is starting on port {port}...\n")
+    
     app.run(host='0.0.0.0', port=port)
