@@ -1,0 +1,7 @@
+Flask
+pydub
+TTS
+librosa
+numpy
+scipy
+werkzeug

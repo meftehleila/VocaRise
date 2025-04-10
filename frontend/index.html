@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>VoiceClone - Créateur de voix</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>VocaRise</h1>
+            <p class="subtitle">Transformez votre voix en quelques secondes</p>
+        </header>
+
+        <div class="step-container">
+            <div class="step">
+                <div class="step-title-container">
+                    <div class="step-number">1</div>
+                    <h2>Importez votre voix</h2>
+                </div>
+                <div class="upload-box" id="drop-zone">
+                    <div class="upload-icon">🎤</div>
+                    <p><strong>Glissez-déposez votre fichier audio</strong></p>
+                    <p>ou <span id="browse-trigger" style="color: var(--primary);">cliquez pour parcourir</span></p>
+                    <p class="small" style="margin-top: 1rem; opacity: 0.7;">Format MP3 ou WAV - 30s à 1min recommandé</p>
+                    <input type="file" id="audio-upload" accept="audio/*" class="file-input">
+                    <audio id="audio-preview" controls class="audio-preview hidden"></audio>
+                </div>
+            </div>
+            <div class="horizontal-section"></div>
+                <div class="section-box" id="text-step">
+                    <div class="step-title-container">
+                        <div class="step-number">2</div>
+                        <h2>Entrez votre texte</h2>
+                    </div>
+                    <textarea id="text-input" placeholder="Écrivez ici le texte que vous voulez faire prononcer..."></textarea>
+                </div>
+
+                <div class="section-box">
+                    <button id="generate-btn" class="btn">
+                        <span class="btn-icon">✨</span>
+                        Générer la voix clonée
+                    </button>
+                    <p id="loading-message" class="loading-message hidden">🕐 Génération de la voix en cours...</p>
+                    <div class="progress-bar hidden" id="progress-container">
+                        <div class="progress" id="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="result-container" class="result-container hidden">
+                <h3 class="result-title">Votre voix clonée est prête !</h3>
+                <audio id="result-audio" controls class="audio-preview"></audio>
+                <button id="download-btn" class="btn" style="margin-top: 1.5rem;">
+                    <span class="btn-icon">⬇️</span>
+                    Télécharger le MP3
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-popup" class="popup hidden">
+        <div class="popup-content">
+          <div class="spinner"></div>
+          <p>Génération de la voix en cours...</p>
+        </div>
+      </div>
+      
+    <script src="js/script.js"></script>
+</body>
+</html>

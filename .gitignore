@@ -1,0 +1,17 @@
+# Ignorer les fichiers/dossiers générés
+uploads/
+outputs/
+__pycache__/
+*.pyc
+*.log
+
+# Ignorer les environnements virtuels
+venv/
+.env
+
+#ignorer le dossier vscode
+.vscode/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
