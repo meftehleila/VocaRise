@@ -1,6 +1,4 @@
-Flask
+TTS==0.22.0
+torch
 pydub
-TTS
-librosa
-scipy
-werkzeug
+flask

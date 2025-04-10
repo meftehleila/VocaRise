@@ -1,21 +1,22 @@
 import os
-import uuid
 import traceback
+import uuid
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 from pydub import AudioSegment
 
-# Initialisation
+# --- Configurations ---
 UPLOAD_FOLDER = "uploads"
 OUTPUT_FOLDER = "outputs"
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'm4a'}
 
-app = Flask(__name__, static_folder="frontend", static_url_path="")
+app = Flask(__name__, static_folder='frontend', static_url_path='')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 
-tts = None  # On chargera XTTS au premier appel
+# 🔁 TTS sera chargé plus tard
+tts = None
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -32,41 +33,48 @@ def clone_voice():
             return jsonify({'error': 'Fichier audio ou texte manquant'}), 400
 
         file = request.files['audio']
-        text = request.form['text'].strip()
+        text = request.form['text']
 
         if file.filename == '' or not allowed_file(file.filename):
             return jsonify({'error': 'Format de fichier non autorisé'}), 400
 
-        # Charger XTTS v2 seulement une fois
+        # Chargement du modèle TTS à la première requête uniquement
         if tts is None:
-            print("🔁 Chargement de XTTS v2...")
+            print("🔁 Chargement du modèle YourTTS...")
             from TTS.api import TTS as TTSModel
-            tts = TTSModel(model_name="tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=False, gpu=False)
-            print("✅ XTTS prêt")
+            tts = TTSModel(model_name="tts_models/multilingual/multi-dataset/your_tts", progress_bar=False, gpu=False)
+            print("✅ Modèle TTS chargé")
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # 🔐 Générer des noms uniques
         ext = os.path.splitext(file.filename)[1]
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"upload_{timestamp}{ext}"
         wav_filename = f"converted_{timestamp}.wav"
         output_name = f"voice_clone_{timestamp}.mp3"
 
+        # 📥 Sauvegarde du fichier original
         raw_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        wav_path = os.path.join(app.config['UPLOAD_FOLDER'], wav_filename)
-        output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_name)
-
         file.save(raw_path)
+
+        # 🎧 Conversion en wav mono 16kHz
+        wav_path = os.path.join(app.config['UPLOAD_FOLDER'], wav_filename)
         audio = AudioSegment.from_file(raw_path).set_channels(1).set_frame_rate(16000).normalize()
         audio.export(wav_path, format="wav")
 
+        # 🧠 Synthèse vocale avec TTS
+        output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_name)
         tts.tts_to_file(
-            text=text + ".",
+            text=text.strip() + ".",
             speaker_wav=wav_path,
-            language="fr",
+            language="fr-fr",
+            temperature=0.1,
+            speed=0.9,
             file_path=output_path
         )
 
+        # ⏳ Silence final pour plus de naturel
         final_audio = AudioSegment.from_file(output_path)
-        final_audio += AudioSegment.silent(duration=1000)
+        final_audio += AudioSegment.silent(duration=1500)
         final_audio.export(output_path, format="mp3")
 
         return jsonify({'success': True, 'audio_url': f'/api/audio/{output_name}'})
